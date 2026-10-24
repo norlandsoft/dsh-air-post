@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "AirPost",
+    "description": "AirPost：在右侧边栏定义并执行 HTTP 接口、编排业务流程、断言响应，并由 AI 生成测试脚本与分析报告。在右侧边栏打开，不占用中间的 AI 对话；全部接口、流程与结果保存在当前工作区的 .api-studio 目录。"
+  }
+}

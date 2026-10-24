@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="AirPost">
+  <title>AirPost</title>
+  <defs>
+    <linearGradient id="airpost-bg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2f6f55"/>
+      <stop offset="1" stop-color="#173f30"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="15" fill="url(#airpost-bg)"/>
+  <g fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M27 37.2a8.6 8.6 0 0 1 0-12.2l5.4-5.4a8.6 8.6 0 0 1 12.2 12.2l-2.7 2.7"/>
+    <path d="M37 26.8a8.6 8.6 0 0 1 0 12.2l-5.4 5.4a8.6 8.6 0 0 1-12.2-12.2l2.7-2.7"/>
+    <path d="m24.2 39.8 15.6-15.6" opacity=".58"/>
+  </g>
+</svg>

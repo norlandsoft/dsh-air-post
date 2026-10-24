@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "AirPost",
+    "description": "AirPost: define and run HTTP requests, chain them into business flows, assert responses, and let AI author tests or generate analysis reports. It opens in the right sidebar so the AI conversation stays in the center. Every artifact is stored under .api-studio in the current workspace."
+  }
+}
