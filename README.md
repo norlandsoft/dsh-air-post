@@ -175,7 +175,7 @@ bootstrap, get_request, get_flow, save_request, save_flow,
 delete_request, delete_flow, run_request, run_flow,
 list_runs, get_run, save_variables, save_environments, list_history,
 restore_history, import_data, export_data, run_all, run_case, run_flow_dataset,
-ai_create, ai_analyze, list_reports, read_report, delete_report, self_test, seed_demo
+ai_create, ai_analyze, list_reports, read_report, delete_report, self_test
 ```
 
 `ai_create` takes `{ prompt, kind }`; `ai_analyze` takes `{ runId, prompt? }`.

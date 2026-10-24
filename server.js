@@ -302,8 +302,6 @@ async function dispatchStudio(ctx, action, params) {
       return aiAnalyze(ctx, params)
     case 'self_test':
       return selfTest()
-    case 'seed_demo':
-      return seedDemo(ctx, params.force === true)
     default:
       throw new StudioError(`unknown action "${action}"`, 400)
   }
@@ -384,13 +382,11 @@ async function ensureStore(ctx) {
 }
 
 async function initializeStore(paths) {
-  const existed = await exists(paths.root)
   await mkdir(paths.requests, { recursive: true })
   await mkdir(paths.flows, { recursive: true })
   await mkdir(paths.runs, { recursive: true })
   await mkdir(paths.reports, { recursive: true })
   await mkdir(paths.history, { recursive: true })
-  if (!existed) await writeSeed(paths)
   if (!(await exists(paths.workspace))) {
     await writeJsonAtomic(paths.workspace, defaultWorkspace())
   }
@@ -416,128 +412,6 @@ function defaultWorkspace() {
     globalQuery: [],
     updatedAt: nowIso(),
   }
-}
-
-async function writeSeed(paths) {
-  const seed = createSeed()
-  await Promise.all(seed.requests.map((request) => writeJsonAtomic(requestFile(paths, request.id), request)))
-  await Promise.all(seed.flows.map((flow) => writeJsonAtomic(flowFile(paths, flow.id), flow)))
-  await writeJsonAtomic(paths.workspace, defaultWorkspace())
-}
-
-function createSeed() {
-  const created = nowIso()
-  const requests = [
-    {
-      id: 'req-demo-user',
-      name: 'Demo · 查询用户',
-      description: 'GET JSONPlaceholder 用户 1，验证状态码、JSON 字段和响应头。',
-      folder: 'Demo',
-      method: 'GET',
-      url: '{{baseUrl}}/users/1',
-      headers: [{ key: 'accept', value: 'application/json', enabled: true }],
-      query: [],
-      body: { type: 'none', text: '' },
-      auth: { type: 'none' },
-      tests: [
-        { type: 'status', op: 'eq', value: 200 },
-        { type: 'json', path: 'id', op: 'exists' },
-        { type: 'json', path: 'email', op: 'contains', value: '@' },
-        { type: 'header', header: 'content-type', op: 'contains', value: 'application/json' },
-      ],
-      timeoutMs: 20000,
-      followRedirects: true,
-      variables: {},
-      createdAt: created,
-      updatedAt: created,
-    },
-    {
-      id: 'req-demo-create-post',
-      name: 'Demo · 创建文章',
-      description: 'POST JSONPlaceholder 文章，验证 201 与返回 id，并把 id 提取给后续步骤。',
-      folder: 'Demo',
-      method: 'POST',
-      url: '{{baseUrl}}/posts',
-      headers: [{ key: 'content-type', value: 'application/json', enabled: true }],
-      query: [],
-      body: {
-        type: 'json',
-        text: '{\n  "title": "AirPost flow {{runId}}",\n  "body": "created by AirPost",\n  "userId": 1\n}',
-      },
-      auth: { type: 'none' },
-      tests: [
-        { type: 'status', op: 'eq', value: 201 },
-        { type: 'json', path: 'id', op: 'exists' },
-        { type: 'json', path: 'title', op: 'contains', value: 'AirPost' },
-      ],
-      timeoutMs: 20000,
-      followRedirects: true,
-      variables: {},
-      createdAt: created,
-      updatedAt: created,
-    },
-    {
-      id: 'req-demo-user-by-id',
-      name: 'Demo · 按变量查询用户',
-      description: '使用流程变量 userId 查询用户，验证提取出的变量真的参与了后续请求。',
-      folder: 'Demo',
-      method: 'GET',
-      url: '{{baseUrl}}/users/{{userId}}',
-      headers: [{ key: 'accept', value: 'application/json', enabled: true }],
-      query: [],
-      body: { type: 'none', text: '' },
-      auth: { type: 'none' },
-      tests: [
-        { type: 'status', op: 'eq', value: 200 },
-        { type: 'json', path: 'id', op: 'eq', value: '{{userId}}' },
-        { type: 'json', path: 'email', op: 'contains', value: '@' },
-      ],
-      timeoutMs: 20000,
-      followRedirects: true,
-      variables: {},
-      createdAt: created,
-      updatedAt: created,
-    },
-  ]
-  const flows = [
-    {
-      id: 'flow-demo-create-and-fetch',
-      name: 'Demo · 提取变量后查询',
-      description: '先查询用户并提取 userId，再把它带入第二个请求并断言 id 一致。',
-      folder: 'Demo',
-      variables: { userId: '' },
-      stopOnFailure: true,
-      steps: [
-        {
-          id: 'step-user',
-          name: '1. 查询用户并提取 ID',
-          requestId: 'req-demo-user',
-          overrides: {},
-          extract: [{ name: 'userId', from: 'body', path: 'id' }],
-          continueOnFailure: false,
-        },
-        {
-          id: 'step-user-by-id',
-          name: '2. 用提取出的 ID 再查一次',
-          requestId: 'req-demo-user-by-id',
-          overrides: {},
-          extract: [],
-          continueOnFailure: false,
-        },
-      ],
-      createdAt: created,
-      updatedAt: created,
-    },
-  ]
-  return { requests, flows }
-}
-
-async function seedDemo(ctx, force) {
-  const store = await ensureStore(ctx)
-  const existing = await listRequests(ctx)
-  if (existing.length > 0 && !force) return { seeded: false, reason: 'workspace already has requests' }
-  await writeSeed(store)
-  return { seeded: true }
 }
 
 async function bootstrap(ctx) {
@@ -3480,7 +3354,6 @@ function createTool(ctx) {
             'ai_create',
             'ai_analyze',
             'self_test',
-            'seed_demo',
           ],
         },
         requestId: { type: 'string' },
